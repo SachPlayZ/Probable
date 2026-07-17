@@ -1,7 +1,7 @@
 import express, { type Express, type RequestHandler } from "express";
 import type { AppConfig } from "@probable/config";
 import type { Logger } from "@probable/logger";
-import { GammaClient, ClobClient } from "@probable/polymarket";
+import { GammaClient, ClobClient, DataClient } from "@probable/polymarket";
 import { requestContext } from "./middleware/request-context.js";
 import { bodySizeGuard } from "./middleware/body-size-guard.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
@@ -9,12 +9,14 @@ import { createPaymentMiddleware } from "./config/payments.js";
 import { healthRouter } from "./routes/health.route.js";
 import { searchRouter } from "./routes/search.route.js";
 import { snapshotRouter } from "./routes/snapshot.route.js";
+import { vitalsRouter } from "./routes/vitals.route.js";
 
 export interface AppDependencies {
   config: AppConfig;
   logger: Logger;
   gamma?: GammaClient;
   clob?: ClobClient;
+  data?: DataClient;
   /**
    * Overrides the real x402 middleware. Production always uses the official SDK
    * (config/payments.ts); tests may inject a schema-faithful fake so the suite
@@ -33,18 +35,23 @@ export function createApp(deps: AppDependencies): Express {
   const { config, logger } = deps;
   const gamma = deps.gamma ?? new GammaClient({ baseUrl: config.polymarket.gammaBaseUrl });
   const clob = deps.clob ?? new ClobClient({ baseUrl: config.polymarket.clobBaseUrl });
+  const data = deps.data ?? new DataClient({ baseUrl: config.polymarket.dataBaseUrl });
 
   const app = express();
   app.disable("x-powered-by");
 
   app.use(requestContext(logger));
   app.use(bodySizeGuard());
-  app.use(deps.paymentMiddleware ?? createPaymentMiddleware(config, [config.routes.snapshot]));
+  app.use(
+    deps.paymentMiddleware ??
+      createPaymentMiddleware(config, [config.routes.snapshot, config.routes.vitals]),
+  );
   app.use(express.json({ limit: "32kb" }));
 
   app.use("/health", healthRouter());
   app.use("/v1/search", searchRouter(gamma));
   app.use("/v1/snapshot", snapshotRouter(gamma, clob));
+  app.use("/v1/vitals", vitalsRouter(gamma, clob, data));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

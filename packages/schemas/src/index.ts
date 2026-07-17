@@ -17,3 +17,6 @@ export type { SearchRequest, SearchMatch, SearchResponseData } from "./search.js
 
 export { snapshotRequestSchema, snapshotResponseDataSchema, pricingMethodSchema } from "./snapshot.js";
 export type { SnapshotRequest, SnapshotResponseData } from "./snapshot.js";
+
+export { vitalsRequestSchema, vitalsResponseDataSchema } from "./vitals.js";
+export type { VitalsRequest, VitalsResponseData } from "./vitals.js";

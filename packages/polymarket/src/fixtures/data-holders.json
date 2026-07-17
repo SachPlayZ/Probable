@@ -1,0 +1,142 @@
+[
+  {
+    "token": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+    "holders": [
+      {
+        "proxyWallet": "0x1615086ace48440b0bc0da28a9dfc3d6e8208f2b",
+        "bio": "Statistician. Researcher.",
+        "asset": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+        "pseudonym": "Finished-Wheel",
+        "amount": 5497.940413,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 0,
+        "name": "alihanyer",
+        "profileImage": "https://polymarket-upload.s3.us-east-2.amazonaws.com/profile-image-3686065-df1eec5d-5da8-4028-b92a-b5c929969136.png",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0x7a6192ea6815d3177e978dd3f8c38be5f575af24",
+        "bio": "",
+        "asset": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+        "pseudonym": "Thrifty-Shallot",
+        "amount": 3094.455908,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 0,
+        "name": "Gambler1968",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0xbb8e6477bcb4d0a79449507c607d36fd228fb243",
+        "bio": "",
+        "asset": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+        "pseudonym": "Unwitting-Prisoner",
+        "amount": 2251.16,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 0,
+        "name": "Generator",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0x10fbc3d2421e002f269089d15be6a56ce6ffc66c",
+        "bio": "",
+        "asset": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+        "pseudonym": "Beneficial-Drug",
+        "amount": 2236.51293,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 0,
+        "name": "choohkz23",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0x06ecb7e739f5455922ce57e83284f132c7f0f845",
+        "bio": "",
+        "asset": "98022490269692409998126496127597032490334070080325855126491859374983463996227",
+        "pseudonym": "Adventurous-Sentence",
+        "amount": 1038.14,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 0,
+        "name": "Frosen",
+        "profileImage": "https://polymarket-upload.s3.us-east-2.amazonaws.com/profile-image-1083598-6239bd17-f0a9-48a1-992d-c22223346dfe.jpg",
+        "profileImageOptimized": "",
+        "verified": true
+      }
+    ]
+  },
+  {
+    "token": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+    "holders": [
+      {
+        "proxyWallet": "0xdf6da574f8b0c0ce5e01ddb1c5a49b87993e9c5c",
+        "bio": "No crying in the casino.",
+        "asset": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+        "pseudonym": "Willing-Minnow",
+        "amount": 4532.3,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 1,
+        "name": "TheRedChip",
+        "profileImage": "https://polymarket-upload.s3.us-east-2.amazonaws.com/PUJOsBLsVwLDNBUz_generated_image_ee10c007-ceab-4829-a769-cfe0ef97a463_1741766902146.jpg",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0x9d84ce0306f8551e02efef1680475fc0f1dc1344",
+        "bio": "",
+        "asset": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+        "pseudonym": "Ample-Instance",
+        "amount": 3471.75558,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 1,
+        "name": "ImJustKen",
+        "profileImage": "https://polymarket-upload.s3.us-east-2.amazonaws.com/profile-image-82662-8ddbc8e8-0500-44b7-bb13-c0b32a40a45d.jpg",
+        "profileImageOptimized": "",
+        "verified": true
+      },
+      {
+        "proxyWallet": "0xa17eb0b952f08627196a4dd548fbfddc66efcfcd",
+        "bio": "",
+        "asset": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+        "pseudonym": "Specific-Choker",
+        "amount": 2991.336343,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 1,
+        "name": "0xA17Eb0B952f08627196a4DD548FBfDDc66efcFCD-1769051546479",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0xb1a190be02cafacb6c30b98beb621503d5e2d308",
+        "bio": "",
+        "asset": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+        "pseudonym": "Legitimate-Airman",
+        "amount": 1195.593177,
+        "displayUsernamePublic": true,
+        "outcomeIndex": 1,
+        "name": "Jjw",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      },
+      {
+        "proxyWallet": "0x4e25605fd905e9972efc0f4d8814530c655cd7a7",
+        "bio": "",
+        "asset": "53831553061883006530739877284105938919721408776239639687877978808906551086026",
+        "pseudonym": "",
+        "amount": 495.006668,
+        "displayUsernamePublic": false,
+        "outcomeIndex": 1,
+        "name": "",
+        "profileImage": "",
+        "profileImageOptimized": "",
+        "verified": false
+      }
+    ]
+  }
+]

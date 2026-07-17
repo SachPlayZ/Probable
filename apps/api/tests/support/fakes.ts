@@ -1,4 +1,16 @@
-import { GammaClient, ClobClient, type GammaMarket, type GammaEvent, type GammaPublicSearchResponse, type ClobBook, type ClobPriceHistory } from "@probable/polymarket";
+import {
+  GammaClient,
+  ClobClient,
+  DataClient,
+  type GammaMarket,
+  type GammaEvent,
+  type GammaPublicSearchResponse,
+  type ClobBook,
+  type ClobPriceHistory,
+  type OpenInterestResponse,
+  type HoldersResponse,
+  type TradesResponse,
+} from "@probable/polymarket";
 
 export function makeMarket(overrides: Partial<GammaMarket> = {}): GammaMarket {
   return {
@@ -80,5 +92,46 @@ export class FakeClobClient extends ClobClient {
 
   override async getPricesHistory(): Promise<ClobPriceHistory> {
     return this.historyImpl();
+  }
+}
+
+export class FakeDataClient extends DataClient {
+  oiImpl: () => Promise<OpenInterestResponse> = async () => [{ market: "0xcondition1", value: 50000 }];
+  holdersImpl: () => Promise<HoldersResponse> = async () => [
+    {
+      token: "token-yes-1",
+      holders: [
+        { proxyWallet: "0xa", amount: 500, outcomeIndex: 0 },
+        { proxyWallet: "0xb", amount: 300, outcomeIndex: 0 },
+        { proxyWallet: "0xc", amount: 200, outcomeIndex: 0 },
+      ],
+    },
+  ];
+  tradesImpl: () => Promise<TradesResponse> = async () => [
+    {
+      proxyWallet: "0xa",
+      side: "BUY",
+      asset: "token-yes-1",
+      conditionId: "0xcondition1",
+      size: 100,
+      price: 0.62,
+      timestamp: Math.floor(Date.now() / 1000) - 60,
+    },
+  ];
+
+  constructor() {
+    super({ baseUrl: "http://fake-data.invalid" });
+  }
+
+  override async getOpenInterest(): Promise<OpenInterestResponse> {
+    return this.oiImpl();
+  }
+
+  override async getHolders(): Promise<HoldersResponse> {
+    return this.holdersImpl();
+  }
+
+  override async getTrades(): Promise<TradesResponse> {
+    return this.tradesImpl();
   }
 }

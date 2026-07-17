@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { gammaMarketsResponseSchema, gammaPublicSearchResponseSchema } from "../src/schemas/gamma.schema.js";
 import { clobBookSchema } from "../src/schemas/clob.schema.js";
+import { openInterestSchema, holdersResponseSchema, tradesResponseSchema } from "../src/schemas/data.schema.js";
 import { normalizeGammaMarket } from "../src/normalize.js";
 
 const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../src/fixtures");
@@ -66,5 +67,25 @@ describe("CLOB contract fixtures", () => {
     for (const level of [...book.bids, ...book.asks]) {
       expect(Number.isNaN(Number(level.price))).toBe(false);
     }
+  });
+});
+
+describe("Data API contract fixtures", () => {
+  it("parses a real /oi response", () => {
+    const oi = openInterestSchema.parse(loadFixture("data-oi.json"));
+    expect(oi.length).toBeGreaterThan(0);
+    expect(typeof oi[0]?.value).toBe("number");
+  });
+
+  it("parses a real /holders response", () => {
+    const holders = holdersResponseSchema.parse(loadFixture("data-holders.json"));
+    expect(holders.length).toBeGreaterThan(0);
+    expect(holders[0]?.holders.length).toBeGreaterThan(0);
+  });
+
+  it("parses a real /trades response", () => {
+    const trades = tradesResponseSchema.parse(loadFixture("data-trades.json"));
+    expect(trades.length).toBeGreaterThan(0);
+    expect(["BUY", "SELL"]).toContain(trades[0]?.side);
   });
 });

@@ -47,12 +47,14 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [ ] Register Search + Snapshot as the minimum viable service array
 - [ ] Verify every endpoint with `curl -i` before listing
 
-## Phase 6 — Market Vitals (0.03 USDT)
+## Phase 6 — Market Vitals (0.03 USDT) ✅
 
-- [ ] Order-book simulation (VWAP, price impact, fill ratio) in `packages/domain`
-- [ ] Market-quality score + components
-- [ ] Exit-difficulty labels
-- [ ] `POST /v1/vitals` route + tests
+- [x] Order-book simulation (VWAP, price impact, fill ratio) in `packages/domain`
+- [x] Market-quality score + components
+- [x] Exit-difficulty labels
+- [x] `POST /v1/vitals` route + tests
+- [x] `packages/polymarket` Data API client (open interest, holders, trades)
+- [x] Live-verified against a real thin market: correctly shows partial fill + "hard" exit difficulty on a $1000 sell against ~$116 of visible bid depth
 
 ## Phase 7 — Resolution Guard (0.05 USDT)
 
