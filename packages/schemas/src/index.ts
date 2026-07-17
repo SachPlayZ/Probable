@@ -20,3 +20,15 @@ export type { SnapshotRequest, SnapshotResponseData } from "./snapshot.js";
 
 export { vitalsRequestSchema, vitalsResponseDataSchema } from "./vitals.js";
 export type { VitalsRequest, VitalsResponseData } from "./vitals.js";
+
+export {
+  resolutionAuditRequestSchema,
+  resolutionFindingSchema,
+  resolutionFindingsLlmOutputSchema,
+  resolutionAuditResponseDataSchema,
+} from "./resolution-audit.js";
+export type {
+  ResolutionAuditRequest,
+  ResolutionFindingSchemaType,
+  ResolutionAuditResponseData,
+} from "./resolution-audit.js";

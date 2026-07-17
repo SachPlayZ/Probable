@@ -26,3 +26,10 @@ export type { ExitDifficulty } from "./orderbook/exit-difficulty.js";
 
 export { computeQualityScore } from "./market-quality/quality-score.js";
 export type { QualityScoreInput, QualityScoreResult } from "./market-quality/quality-score.js";
+
+export { FINDING_TYPES, FINDING_SEVERITIES } from "./resolution-risk/types.js";
+export type { FindingType, FindingSeverity, ResolutionFinding, RiskBand } from "./resolution-risk/types.js";
+export { computeResolutionRisk, scoreForMissingResolutionText, bandForScore } from "./resolution-risk/scoring.js";
+export type { RiskScoreResult } from "./resolution-risk/scoring.js";
+export { evidenceExistsIn, verifyFindingsEvidence } from "./resolution-risk/evidence.js";
+export type { EvidenceVerification } from "./resolution-risk/evidence.js";

@@ -10,6 +10,9 @@ import { healthRouter } from "./routes/health.route.js";
 import { searchRouter } from "./routes/search.route.js";
 import { snapshotRouter } from "./routes/snapshot.route.js";
 import { vitalsRouter } from "./routes/vitals.route.js";
+import { resolutionAuditRouter } from "./routes/resolution-audit.route.js";
+import { GroqStructuredModel } from "./llm/groq-provider.js";
+import { UnavailableStructuredModel, type StructuredModel } from "./llm/structured-model.js";
 
 export interface AppDependencies {
   config: AppConfig;
@@ -17,6 +20,7 @@ export interface AppDependencies {
   gamma?: GammaClient;
   clob?: ClobClient;
   data?: DataClient;
+  llm?: StructuredModel;
   /**
    * Overrides the real x402 middleware. Production always uses the official SDK
    * (config/payments.ts); tests may inject a schema-faithful fake so the suite
@@ -36,6 +40,11 @@ export function createApp(deps: AppDependencies): Express {
   const gamma = deps.gamma ?? new GammaClient({ baseUrl: config.polymarket.gammaBaseUrl });
   const clob = deps.clob ?? new ClobClient({ baseUrl: config.polymarket.clobBaseUrl });
   const data = deps.data ?? new DataClient({ baseUrl: config.polymarket.dataBaseUrl });
+  const llm =
+    deps.llm ??
+    (config.llm.apiKey
+      ? new GroqStructuredModel({ apiKey: config.llm.apiKey, model: config.llm.model })
+      : new UnavailableStructuredModel());
 
   const app = express();
   app.disable("x-powered-by");
@@ -44,7 +53,11 @@ export function createApp(deps: AppDependencies): Express {
   app.use(bodySizeGuard());
   app.use(
     deps.paymentMiddleware ??
-      createPaymentMiddleware(config, [config.routes.snapshot, config.routes.vitals]),
+      createPaymentMiddleware(config, [
+        config.routes.snapshot,
+        config.routes.vitals,
+        config.routes.resolution_audit,
+      ]),
   );
   app.use(express.json({ limit: "32kb" }));
 
@@ -52,6 +65,7 @@ export function createApp(deps: AppDependencies): Express {
   app.use("/v1/search", searchRouter(gamma));
   app.use("/v1/snapshot", snapshotRouter(gamma, clob));
   app.use("/v1/vitals", vitalsRouter(gamma, clob, data));
+  app.use("/v1/resolution-audit", resolutionAuditRouter(gamma, llm));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

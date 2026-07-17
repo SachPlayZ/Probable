@@ -30,9 +30,25 @@ Live-verified: some markets embedded in `/public-search` responses omit these fi
 
 `OKX_X402_PAY_TO`, `OKX_X402_ASSET_ADDRESS`, and the public domain are still placeholders (`.env.example`). `packages/config`'s `assertProductionReady` refuses to boot in `NODE_ENV=production` with placeholder addresses or missing OKX credentials/DB/Redis URLs — this is a hard gate, not just documentation. Real values are genuine blockers for Phase 4 (deployment) and Phase 5 (ASP registration), not for the code itself.
 
+## 2026-07-17 — Phase 6/7 slice (Vitals, Resolution Guard)
+
+### LLM provider: Groq, `openai/gpt-oss-20b`, strict JSON schema mode
+
+User chose Groq's free API. Confirmed via `console.groq.com/docs/structured-outputs` (not guessed): `response_format: { type: "json_schema", json_schema: { name, strict: true, schema } }` with `strict: true` support limited to `openai/gpt-oss-20b` / `openai/gpt-oss-120b` — used the 20b model. `zod-to-json-schema` (`target: "openAi"`) converts the Zod finding schema to the exact shape Groq's strict mode expects. `packages/config`'s existing generic `LLM_PROVIDER`/`LLM_API_KEY` fields cover this (added `LLM_MODEL`, default `openai/gpt-oss-20b`) — no Groq-specific config leaked outside `apps/api/src/llm/`.
+
+No real `GROQ_API_KEY` is available in this environment, so the Groq integration is verified only against a fake `StructuredModel` that implements the same interface (`apps/api/tests/support/fake-structured-model.ts`) — same pattern as the x402 fake payment middleware. When no `LLM_API_KEY` is configured, `apps/api/src/app.ts` wires an `UnavailableStructuredModel` that fails fast with `LlmUnavailableError`, which the route maps to `llm_unavailable: true` + a `limitations` entry rather than a 500 — this is the actual behavior exercised by every current test run (real key not present) and matches AGENTS.md §23's "LLM unavailable" failure-state rule exactly. Live-verifying a real Groq completion is a blocker until a real key is supplied.
+
+### Top-holder concentration is a proxy, not true total-supply share
+
+Polymarket's public `/holders` endpoint returns only the top N holders per token, with no total-outstanding-shares figure. `top_holder_share` in Vitals is computed as `top_holder.amount / sum(returned_top_holders.amount)` — concentration among *visible* top holders, not literal share of total supply. Every response carries an explicit warning saying so. A future version could compute a true total-supply share if Polymarket exposes one; tracked as a methodology-v2 candidate, not a blocker.
+
+### Exit difficulty is modeled on the sell leg, not the buy leg
+
+"Exit difficulty" describes closing an existing position, i.e. selling. `vitals.service.ts` computes `exit_difficulty` from the sell-side order-book simulation (consuming bids) even though both buy and sell fills are returned. Documented inline since PLAN.md §12.3 doesn't disambiguate this explicitly.
+
 ## Open blocking questions (AGENTS.md §28)
 
 - Final receiving wallet address (`OKX_X402_PAY_TO`)?
 - Final public domain?
-- Selected LLM provider for Resolution Guard (Phase 7)?
+- Real `GROQ_API_KEY` for live Resolution Guard verification?
 - Hosting target for `apps/api` (Railway/Render/Fly.io) and Postgres/Redis provider?

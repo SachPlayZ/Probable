@@ -23,6 +23,7 @@ export const envSchema = z.object({
 
   LLM_PROVIDER: z.string().optional(),
   LLM_API_KEY: z.string().optional(),
+  LLM_MODEL: z.string().default("openai/gpt-oss-20b"),
 
   OKX_API_KEY: z.string().optional(),
   OKX_API_SECRET: z.string().optional(),

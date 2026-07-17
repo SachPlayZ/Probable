@@ -56,12 +56,13 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [x] `packages/polymarket` Data API client (open interest, holders, trades)
 - [x] Live-verified against a real thin market: correctly shows partial fill + "hard" exit difficulty on a $1000 sell against ~$116 of visible bid depth
 
-## Phase 7 — Resolution Guard (0.05 USDT)
+## Phase 7 — Resolution Guard (0.05 USDT) ✅ (code) / ⚠️ (live LLM verification blocked)
 
-- [ ] Pick LLM provider (blocking question — see `tasks/decisions.md`)
-- [ ] `StructuredModel` adapter, injection-resistant prompt, evidence-span validation
-- [ ] Deterministic risk scoring
-- [ ] `POST /v1/resolution-audit` route + fixtures for ambiguous/clean markets
+- [x] LLM provider: Groq, `openai/gpt-oss-20b`, strict `json_schema` mode (user choice)
+- [x] `StructuredModel` adapter (provider-agnostic) + `GroqStructuredModel`, injection-resistant prompt, one retry on invalid output
+- [x] Deterministic risk scoring (`packages/domain/src/resolution-risk`) + evidence-span verification
+- [x] `POST /v1/resolution-audit` route, deterministic + LLM findings merged, `llm_unavailable` graceful degrade
+- [ ] Live-verify against a real Groq completion — needs a real `GROQ_API_KEY` (`LLM_API_KEY` in `.env`), not available in this environment. Code path is fully tested against a fake `StructuredModel` matching the real interface; the `UnavailableStructuredModel` fallback (no key configured) is exercised by every route test that doesn't inject a fake.
 
 ## Phase 8 — Full report persistence and UI
 

@@ -28,6 +28,7 @@ export interface AppConfig {
   llm: {
     provider: string | undefined;
     apiKey: string | undefined;
+    model: string;
   };
   okx: {
     apiKey: string | undefined;
@@ -79,6 +80,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     llm: {
       provider: parsed.LLM_PROVIDER,
       apiKey: parsed.LLM_API_KEY,
+      model: parsed.LLM_MODEL,
     },
     okx: {
       apiKey: parsed.OKX_API_KEY,
