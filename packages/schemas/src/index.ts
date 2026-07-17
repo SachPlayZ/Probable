@@ -44,3 +44,11 @@ export type {
   ContradictionCandidate,
   ContradictionsResponseData,
 } from "./contradictions.js";
+
+export {
+  fullReportRequestSchema,
+  fullReportResponseDataSchema,
+  verdictSchema,
+  signalConfidenceSchema,
+} from "./full-report.js";
+export type { FullReportRequest, FullReportResponseData } from "./full-report.js";

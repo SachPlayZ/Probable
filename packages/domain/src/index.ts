@@ -38,3 +38,8 @@ export { multiOutcomeSumCheck } from "./contradictions/multi-outcome-sum.js";
 export type { MultiOutcomeSumResult } from "./contradictions/multi-outcome-sum.js";
 export { findNearDuplicates } from "./contradictions/near-duplicate.js";
 export type { CandidateMarket, NearDuplicatePair } from "./contradictions/near-duplicate.js";
+
+export { computeSignalConfidence, gradeForScore, SIGNAL_CONFIDENCE_DISCLAIMER } from "./reports/signal-confidence.js";
+export type { ConfidenceGrade, SignalConfidenceInput, SignalConfidenceResult } from "./reports/signal-confidence.js";
+export { computeVerdict } from "./reports/verdict.js";
+export type { Verdict, VerdictInput } from "./reports/verdict.js";
