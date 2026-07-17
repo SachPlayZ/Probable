@@ -30,15 +30,29 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [ ] Verify a real signed payment reaches the handler exactly once (needs a funded wallet + real OKX credentials — cannot be done in this environment)
 - [ ] Replay-protection test against the real facilitator
 
-## Phase 4 — Production deployment and endpoint self-check
+## Phase 4 — Production deployment and endpoint self-check ✅ (prep) / ⚠️ (blocked on real credentials)
 
-- [ ] Provision hosting (Railway/Render/Fly.io) for `apps/api`
-- [ ] Provision Postgres + Redis
+- [x] `apps/api/Dockerfile` — multi-stage, `turbo prune`-based. Actually built and
+      run with Docker (Docker Desktop started, image built, container run, real
+      outbound Polymarket calls verified from inside it, Docker `HEALTHCHECK`
+      confirmed `healthy`) — not just written. Caught and fixed a real bug: `turbo
+      prune`'s output doesn't include root-level configs referenced via `extends`
+      (`tsconfig.base.json`), which broke the build with cascading "target too old"
+      TS errors until copied in explicitly.
+- [x] `fly.toml`, `render.yaml`, `railway.json` — one config per platform, all
+      pointing at the same Dockerfile, all built from real current platform docs
+      (not guessed). Render's blueprint also provisions a managed Postgres.
+- [x] `scripts/smoke-test.sh` — run against a real local server; correctly passes
+      health/free-route checks and correctly flags the paid route not returning
+      402 (expected in this environment — no real OKX credentials — see below)
+- [x] `docs/deployment.md` — platform instructions, env var requirements, migration-as-release-step command, what's still blocked
+- [ ] Provision hosting for real — needs your platform choice + account
+- [ ] Provision a real Postgres (Render's blueprint does this automatically; Fly/Railway need it attached manually) + Redis (referenced in config validation, not yet consumed by any cache layer)
 - [ ] Real `OKX_API_KEY` / `OKX_API_SECRET` / `OKX_API_PASSPHRASE`
 - [ ] Real `OKX_X402_PAY_TO` (final receiving wallet — confirm with user)
 - [ ] Confirm `OKX_X402_ASSET_ADDRESS` against current official docs immediately before deploy
 - [ ] Final public domain (confirm with user)
-- [ ] Run production smoke tests (`docs/` script, once written)
+- [ ] Run `scripts/smoke-test.sh` against the real deployed URL once live
 
 ## Phase 5 — ASP registration/listing with minimum stable service set
 

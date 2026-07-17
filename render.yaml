@@ -1,0 +1,49 @@
+# Render Blueprint for apps/api. Connect the repo in the Render dashboard and it
+# will detect this file automatically ("New +" → "Blueprint").
+#
+# Secrets marked `sync: false` are prompted for in the dashboard during setup —
+# never committed here.
+
+databases:
+  - name: probable-db
+    plan: basic-1gb # smallest paid tier with backups; `free` works for early testing
+    region: singapore
+    databaseName: probable
+    user: probable
+
+services:
+  - name: probable-api
+    type: web
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health/live
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: probable-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - key: OKX_API_KEY
+        sync: false
+      - key: OKX_API_SECRET
+        sync: false
+      - key: OKX_API_PASSPHRASE
+        sync: false
+      - key: OKX_X402_PAY_TO
+        sync: false
+      - key: OKX_X402_ASSET_ADDRESS
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: PUBLIC_WEB_URL
+        sync: false

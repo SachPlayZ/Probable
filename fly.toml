@@ -1,0 +1,36 @@
+# Fly.io deployment config for apps/api. Deploy from the monorepo root:
+#   flyctl launch --no-deploy   (first time, creates the app — say no to Postgres, use render/railway managed DB or `flyctl postgres create` separately)
+#   flyctl deploy
+#
+# Build context is the directory containing this file (repo root), matching
+# apps/api/Dockerfile's `COPY . .` expectation.
+
+app = "probable-api" # rename to your actual app name (must be globally unique on Fly)
+primary_region = "sin" # Singapore — closest to most OKX.AI infra; change if needed
+
+[build]
+dockerfile = "apps/api/Dockerfile"
+
+[http_service]
+internal_port = 4000
+force_https = true
+# Keep at least one machine warm — a paid ASP endpoint cold-starting would blow the
+# P95 latency targets in PLAN.md §5. Disable auto-stop for production.
+auto_stop_machines = false
+auto_start_machines = true
+min_machines_running = 1
+
+[[http_service.checks]]
+grace_period = "10s"
+interval = "30s"
+method = "GET"
+path = "/health/live"
+timeout = "5s"
+
+[env]
+NODE_ENV = "production"
+PORT = "4000"
+
+# Secrets (never put these here — set via `flyctl secrets set KEY=value`):
+#   DATABASE_URL, REDIS_URL, OKX_API_KEY, OKX_API_SECRET, OKX_API_PASSPHRASE,
+#   OKX_X402_PAY_TO, OKX_X402_ASSET_ADDRESS, LLM_API_KEY
