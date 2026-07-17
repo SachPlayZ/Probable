@@ -81,6 +81,19 @@ specifically so that field resolves to something once a report is persisted and
 `apps/web` is deployed. This is infrastructure the 6 paid/free services need, not
 a 7th billable service.
 
+## 2026-07-17 — LangChain adoption (revision)
+
+Resolution Guard's Groq integration was rewritten to use `@langchain/groq` +
+`@langchain/core`'s `withStructuredOutput` instead of raw `groq-sdk` +
+hand-rolled `zod-to-json-schema` conversion. Same `StructuredModel` interface,
+same behavior (strict json_schema mode, one retry on invalid output,
+injection-resistant prompt) — genuinely less code, not a cosmetic swap. Full
+rationale and the "why the earlier version rejected this" reversal in
+`docs/ADR/001-llm-provider-groq.md`. `LangGraph` remains unused — the project
+has no multi-step agent workflow for it to orchestrate; only the LLM
+chat-model + structured-output pieces of the LangChain ecosystem are in the
+dependency tree.
+
 ## Open blocking questions (AGENTS.md §28)
 
 - Final receiving wallet address (`OKX_X402_PAY_TO`)?

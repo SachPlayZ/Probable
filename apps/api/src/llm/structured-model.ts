@@ -1,6 +1,9 @@
 import type { ZodType } from "zod";
 
-export interface GenerateInput<T> {
+// Every structured-output schema in this codebase is a Zod object producing a
+// plain record (findings arrays, etc.) — matches LangChain's withStructuredOutput
+// constraint, which every real provider implementation is expected to use.
+export interface GenerateInput<T extends Record<string, unknown>> {
   task: string;
   schema: ZodType<T>;
   data: unknown;
@@ -13,7 +16,7 @@ export interface GenerateInput<T> {
  * AI provider").
  */
 export interface StructuredModel {
-  generate<T>(input: GenerateInput<T>): Promise<T>;
+  generate<T extends Record<string, unknown>>(input: GenerateInput<T>): Promise<T>;
 }
 
 export class LlmOutputInvalidError extends Error {
@@ -30,7 +33,7 @@ export class LlmUnavailableError extends Error {
 
 /** Used when no LLM API key is configured — fails fast and honestly rather than attempting a call. */
 export class UnavailableStructuredModel implements StructuredModel {
-  async generate<T>(): Promise<T> {
+  async generate<T extends Record<string, unknown>>(): Promise<T> {
     throw new LlmUnavailableError("No LLM provider is configured.");
   }
 }
