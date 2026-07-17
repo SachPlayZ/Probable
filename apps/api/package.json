@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@probable/config": "workspace:*",
+    "@probable/db": "workspace:*",
     "@probable/logger": "workspace:*",
     "@probable/schemas": "workspace:*",
     "@probable/polymarket": "workspace:*",

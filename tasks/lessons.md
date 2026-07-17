@@ -4,6 +4,13 @@ Format: mistake → root cause → permanent prevention rule → check added.
 
 ## 2026-07-17
 
+### A field derived from a DB-generated value can't be baked into the payload written in the same insert
+
+- Mistake: `full-report.service.ts` computed `report_url` (which embeds the DB-generated `public_id`) and stored it *inside* `resultPayload` before calling `INSERT ... RETURNING`. The `public_id` doesn't exist until the insert returns, so the stored `report_url` was always `undefined` — invisible on the first (write) response since that one uses the real post-insert value, but exposed on every subsequent idempotency cache-hit, which was serving the stale stored payload.
+- Root cause: conflated "what to persist" with "what a fresh insert's return value will contain" — wrote the response object once and reused it for both the live response and the archival copy, without accounting for the field that only becomes known *after* the write.
+- Rule: never bake a DB-generated identifier (serial ID, generated UUID, `public_id`, etc.) into a JSON blob computed *before* the insert that produces it. Either persist without that field and reconstruct it on every read, or do the insert first and build the response from its return value.
+- Check added: caught by an actual live-Postgres round-trip test (`full-report-persistence.test.ts`), not by typechecking or a mocked-DB test — the mock would have happily accepted whatever fake ID was configured. When a persistence bug's exact failure mode depends on real DB-generated-value timing, only a real DB catches it.
+
 ### `decimal.js` default import breaks under `moduleResolution: NodeNext`
 
 - Mistake: `import Decimal from "decimal.js"` produced `TS2709 Cannot use namespace 'Decimal' as a type` / `TS2351 not constructable` across every domain file.

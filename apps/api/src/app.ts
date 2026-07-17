@@ -15,6 +15,7 @@ import { contradictionsRouter } from "./routes/contradictions.route.js";
 import { fullReportRouter } from "./routes/full-report.route.js";
 import { GroqStructuredModel } from "./llm/groq-provider.js";
 import { UnavailableStructuredModel, type StructuredModel } from "./llm/structured-model.js";
+import { createDatabase, ReportsRepository } from "@probable/db";
 
 export interface AppDependencies {
   config: AppConfig;
@@ -23,6 +24,7 @@ export interface AppDependencies {
   clob?: ClobClient;
   data?: DataClient;
   llm?: StructuredModel;
+  reportsRepo?: ReportsRepository;
   /**
    * Overrides the real x402 middleware. Production always uses the official SDK
    * (config/payments.ts); tests may inject a schema-faithful fake so the suite
@@ -47,6 +49,8 @@ export function createApp(deps: AppDependencies): Express {
     (config.llm.apiKey
       ? new GroqStructuredModel({ apiKey: config.llm.apiKey, model: config.llm.model })
       : new UnavailableStructuredModel());
+  const reportsRepo =
+    deps.reportsRepo ?? (config.databaseUrl ? new ReportsRepository(createDatabase(config.databaseUrl)) : undefined);
 
   const app = express();
   app.disable("x-powered-by");
@@ -71,7 +75,7 @@ export function createApp(deps: AppDependencies): Express {
   app.use("/v1/vitals", vitalsRouter(gamma, clob, data));
   app.use("/v1/resolution-audit", resolutionAuditRouter(gamma, llm));
   app.use("/v1/contradictions", contradictionsRouter(gamma, clob));
-  app.use("/v1/full-report", fullReportRouter(gamma, clob, data, llm));
+  app.use("/v1/full-report", fullReportRouter(gamma, clob, data, llm, reportsRepo, config.publicWebUrl));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

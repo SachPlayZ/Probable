@@ -46,6 +46,20 @@ Polymarket's public `/holders` endpoint returns only the top N holders per token
 
 "Exit difficulty" describes closing an existing position, i.e. selling. `vitals.service.ts` computes `exit_difficulty` from the sell-side order-book simulation (consuming bids) even though both buy and sell fills are returned. Documented inline since PLAN.md §12.3 doesn't disambiguate this explicitly.
 
+## 2026-07-17 — Phase 8 slice (persistence)
+
+### Postgres/Drizzle verified against a real throwaway local instance, not just typechecked
+
+This environment has no provisioned Postgres, but `postgresql@14` is installed via Homebrew. Rather than leaving the DB layer typecheck-only, spun up a throwaway instance (`initdb` + `pg_ctl` on a non-default port, isolated data dir under the scratchpad), ran the real `drizzle-kit generate` → `drizzle-kit migrate` → repository CRUD → app-level persistence + idempotency flow against it end to end, then tore it down completely (`pg_ctl stop` + `rm -rf` the data dir). Nothing was left running or on disk afterward. This caught a real bug (see below) that pure typechecking would have missed.
+
+### idempotency_key column and 409 IDEMPOTENCY_CONFLICT added
+
+`reports.idempotency_key` is a nullable unique text column. `IDEMPOTENCY_CONFLICT` (409) was added to the shared error taxonomy in `packages/schemas/src/errors.ts` — the taxonomy is not literally frozen; PLAN.md §11's list is what's needed so far, and this is a spec-mandated (§13) code that was simply missing.
+
+### report_url must be derived fresh from the stored row on a cache hit, not from the stored payload
+
+Real bug caught during live-Postgres verification: `report_url` depends on the DB-generated `public_id`, which doesn't exist yet at the moment the row is first written (`resultPayload` was serialized before `INSERT ... RETURNING` ran). The idempotency cache-hit path was returning the stale `report_url: undefined` baked into that early snapshot. Fixed in `apps/api/src/services/full-report.service.ts` by reconstructing `report_url` from `existing.publicId` on every cache hit instead of trusting the stored payload's own field. Logged in `tasks/lessons.md`.
+
 ## Open blocking questions (AGENTS.md §28)
 
 - Final receiving wallet address (`OKX_X402_PAY_TO`)?

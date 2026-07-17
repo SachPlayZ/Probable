@@ -64,14 +64,14 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [x] `POST /v1/resolution-audit` route, deterministic + LLM findings merged, `llm_unavailable` graceful degrade
 - [ ] Live-verify against a real Groq completion — needs a real `GROQ_API_KEY` (`LLM_API_KEY` in `.env`), not available in this environment. Code path is fully tested against a fake `StructuredModel` matching the real interface; the `UnavailableStructuredModel` fallback (no key configured) is exercised by every route test that doesn't inject a fake.
 
-## Phase 8 — Full report persistence and UI ✅ (orchestration) / ⚠️ (persistence, UI)
+## Phase 8 — Full report persistence and UI ✅ (backend + persistence) / ⚠️ (UI)
 
 - [x] Full-report orchestration composing Snapshot + Vitals + Resolution Guard + Contradiction Scan
 - [x] Deterministic verdict logic (`packages/domain/src/reports`) + signal-confidence model (PLAN §14)
-- [x] `POST /v1/full-report` route — accepts `idempotency_key` but does not yet enforce it (no store configured); `persist_report`/`generate_social_card` accepted but honestly report `persisted: false, persistence_status: "not_configured"` rather than faking success
-- [ ] `packages/db` — Drizzle schema + migrations for `reports`, `upstream_fetches`, `service_usage`, `methodology_versions` — needs a real Postgres to write/verify against, not provisioned here
+- [x] `packages/db` — Drizzle schema + generated migration for `reports`, `upstream_fetches`, `service_usage`, `methodology_versions`. Migration generation AND application were verified against a real throwaway local Postgres (initdb + pg_ctl, torn down after) — not just typechecked.
+- [x] `POST /v1/full-report` route — real persistence via `ReportsRepository` when `DATABASE_URL` is configured; honest `persisted: false, persistence_status: "not_configured"` when it isn't (never fakes success). A DB failure at write time degrades to an unpersisted response rather than 500ing (AGENTS §15).
+- [x] Real `idempotency_key` enforcement: same key + same payload → cached report (verified real HTTP round-trip returns the identical `report_url`); same key + different payload → `409 IDEMPOTENCY_CONFLICT` (new error code, added to the taxonomy). Caught and fixed a real bug during this verification: the cached-response path was returning `report_url: undefined` because the URL depends on the DB-generated `public_id`, which doesn't exist yet when the row is first written — fixed by deriving it fresh from the found row on every cache hit.
 - [ ] `apps/web` — report page, methodology page, social card export — not started; a separate, substantial frontend build
-- [ ] Real idempotency-key enforcement once a store exists
 - [x] Live-verified against a real market: composed all four sections correctly, and Contradiction Scan's near-duplicate detector caught a genuine real-world case — two identically-worded Polymarket markets ("Will Bitcoin dip to $60,000 in July?") priced at 100% and 47.5% simultaneously, correctly flagged as `candidate_near_duplicate_claim` with manual-verification language, never "arbitrage"
 
 ## Phase 9 — Contradiction Scan (0.08 USDT) ✅ (modes A, C) / deferred (mode B)
