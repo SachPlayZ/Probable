@@ -46,6 +46,9 @@ export const gammaMarketSchema = z
     events: z.array(gammaEventRefSchema).optional(),
     liquidityNum: z.number().optional(),
     volumeNum: z.number().optional(),
+    // Polymarket's own "grouped, mutually-exclusive outcome set" signal (e.g. "who will win X")
+    // — used to gate the multi-outcome-sum contradiction check to sets it actually applies to.
+    negRisk: z.boolean().optional(),
   })
   .passthrough();
 

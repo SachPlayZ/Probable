@@ -71,11 +71,19 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [ ] `apps/web` — report page, methodology page, social card export
 - [ ] `POST /v1/full-report` route + idempotency-key handling
 
-## Phase 9 — Contradiction Scan (0.08 USDT)
+## Phase 9 — Contradiction Scan (0.08 USDT) ✅ (modes A, C) / deferred (mode B)
 
-- [ ] Multi-outcome-sum rule, logical-implication rule, near-duplicate detection
-- [ ] Conservative buffers, relation-confidence scoring
-- [ ] `POST /v1/contradictions` route + tests
+- [x] Multi-outcome-sum rule (gated on Polymarket's own `negRisk` grouping signal)
+- [x] Near-duplicate detection (lexical-similarity proxy, same-deadline gated)
+- [ ] Logical-implication rule — needs an LLM relation classifier; request schema
+      accepts `logical_implication` in `scan_modes` but the route returns an
+      explicit warning and produces no candidates for it (never fabricates a result)
+- [x] Conservative buffers (base + half-spread for mode A; `minimum_edge_pp` for mode C), relation-confidence scoring
+- [x] `POST /v1/contradictions` route + tests
+- [x] Live-verified against a real 13-market negRisk election event: correctly
+      excluded 10 unpriced placeholder-candidate markets with an honest warning
+      rather than fabricating prices, and correctly did not flag the 3 priced
+      real candidates (sum ≈ 1.02, within buffer)
 
 ## Phase 10 — Demo, social card, and submission polish
 

@@ -33,3 +33,8 @@ export { computeResolutionRisk, scoreForMissingResolutionText, bandForScore } fr
 export type { RiskScoreResult } from "./resolution-risk/scoring.js";
 export { evidenceExistsIn, verifyFindingsEvidence } from "./resolution-risk/evidence.js";
 export type { EvidenceVerification } from "./resolution-risk/evidence.js";
+
+export { multiOutcomeSumCheck } from "./contradictions/multi-outcome-sum.js";
+export type { MultiOutcomeSumResult } from "./contradictions/multi-outcome-sum.js";
+export { findNearDuplicates } from "./contradictions/near-duplicate.js";
+export type { CandidateMarket, NearDuplicatePair } from "./contradictions/near-duplicate.js";

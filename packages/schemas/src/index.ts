@@ -32,3 +32,15 @@ export type {
   ResolutionFindingSchemaType,
   ResolutionAuditResponseData,
 } from "./resolution-audit.js";
+
+export {
+  scanModeSchema,
+  contradictionsRequestSchema,
+  contradictionCandidateSchema,
+  contradictionsResponseDataSchema,
+} from "./contradictions.js";
+export type {
+  ContradictionsRequest,
+  ContradictionCandidate,
+  ContradictionsResponseData,
+} from "./contradictions.js";

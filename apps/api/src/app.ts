@@ -11,6 +11,7 @@ import { searchRouter } from "./routes/search.route.js";
 import { snapshotRouter } from "./routes/snapshot.route.js";
 import { vitalsRouter } from "./routes/vitals.route.js";
 import { resolutionAuditRouter } from "./routes/resolution-audit.route.js";
+import { contradictionsRouter } from "./routes/contradictions.route.js";
 import { GroqStructuredModel } from "./llm/groq-provider.js";
 import { UnavailableStructuredModel, type StructuredModel } from "./llm/structured-model.js";
 
@@ -57,6 +58,7 @@ export function createApp(deps: AppDependencies): Express {
         config.routes.snapshot,
         config.routes.vitals,
         config.routes.resolution_audit,
+        config.routes.contradictions,
       ]),
   );
   app.use(express.json({ limit: "32kb" }));
@@ -66,6 +68,7 @@ export function createApp(deps: AppDependencies): Express {
   app.use("/v1/snapshot", snapshotRouter(gamma, clob));
   app.use("/v1/vitals", vitalsRouter(gamma, clob, data));
   app.use("/v1/resolution-audit", resolutionAuditRouter(gamma, llm));
+  app.use("/v1/contradictions", contradictionsRouter(gamma, clob));
 
   app.use(notFoundHandler);
   app.use(errorHandler);
