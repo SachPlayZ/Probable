@@ -54,12 +54,25 @@ Tracks AGENTS.md §26 build order. Check items off as completed; keep atomic.
 - [ ] Final public domain (confirm with user)
 - [ ] Run `scripts/smoke-test.sh` against the real deployed URL once live
 
-## Phase 5 — ASP registration/listing with minimum stable service set
+## Phase 5 — ASP registration/listing ✅ (prep, everything buildable without credentials) / 🔒 (hard blocker on the registration act itself)
 
-- [ ] Read current `okx-ai` skill identity-register flow before running any `onchainos` command
-- [ ] Register Probable ASP identity
-- [ ] Register Search + Snapshot as the minimum viable service array
-- [ ] Verify every endpoint with `curl -i` before listing
+- [x] `docs/okx-listing.md` — exact ASP name/description, full 6-row service
+      array with real prices/paths read from `packages/config`, payment
+      config checklist, registration sequence. Ready to paste in.
+- [x] `docs/demo-script.md` — 90-second script + known-good real markets from
+      actual development runs (thin-market exit risk, missing resolution
+      source, real duplicate-market discrepancy) + X launch post.
+- [x] `docs/api-contracts.md` — every route's real request/response shape,
+      generated from the actual Zod schemas, not aspirational.
+- [x] `docs/ADR/001-llm-provider-groq.md`, `docs/ADR/002-database-postgres-drizzle.md`
+- [ ] **The registration action itself** — confirmed **not possible** in this
+      environment: `onchainos` (the CLI the `okx-ai` skill requires for any
+      identity/registration action) is not installed here
+      (`which onchainos` → not found), and even if it were, it requires the
+      user's own OKX wallet login, which cannot be performed on their behalf.
+      This is a hard external blocker, not a scoping choice — verified by
+      checking, not assumed.
+- [ ] Deploy first (Phase 4), then run the sequence in `docs/okx-listing.md`
 
 ## Phase 6 — Market Vitals (0.03 USDT) ✅
 
