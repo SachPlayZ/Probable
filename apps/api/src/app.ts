@@ -55,6 +55,10 @@ export function createApp(deps: AppDependencies): Express {
 
   const app = express();
   app.disable("x-powered-by");
+  // Behind nginx (TLS-terminating reverse proxy): trust its X-Forwarded-Proto/Host
+  // so req.protocol reports "https" — the x402 SDK builds the challenge's resource
+  // URL directly from req.protocol + req.headers.host (see @okxweb3/x402-express).
+  app.set("trust proxy", true);
 
   app.use(requestContext(logger));
   app.use(bodySizeGuard());
