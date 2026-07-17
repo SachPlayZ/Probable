@@ -13,6 +13,7 @@ import { vitalsRouter } from "./routes/vitals.route.js";
 import { resolutionAuditRouter } from "./routes/resolution-audit.route.js";
 import { contradictionsRouter } from "./routes/contradictions.route.js";
 import { fullReportRouter } from "./routes/full-report.route.js";
+import { reportsRouter } from "./routes/reports.route.js";
 import { GroqStructuredModel } from "./llm/groq-provider.js";
 import { UnavailableStructuredModel, type StructuredModel } from "./llm/structured-model.js";
 import { createDatabase, ReportsRepository } from "@probable/db";
@@ -76,6 +77,7 @@ export function createApp(deps: AppDependencies): Express {
   app.use("/v1/resolution-audit", resolutionAuditRouter(gamma, llm));
   app.use("/v1/contradictions", contradictionsRouter(gamma, clob));
   app.use("/v1/full-report", fullReportRouter(gamma, clob, data, llm, reportsRepo, config.publicWebUrl));
+  app.use("/v1/reports", reportsRouter(reportsRepo));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

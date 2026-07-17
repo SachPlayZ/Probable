@@ -60,6 +60,27 @@ This environment has no provisioned Postgres, but `postgresql@14` is installed v
 
 Real bug caught during live-Postgres verification: `report_url` depends on the DB-generated `public_id`, which doesn't exist yet at the moment the row is first written (`resultPayload` was serialized before `INSERT ... RETURNING` ran). The idempotency cache-hit path was returning the stale `report_url: undefined` baked into that early snapshot. Fixed in `apps/api/src/services/full-report.service.ts` by reconstructing `report_url` from `existing.publicId` on every cache hit instead of trusting the stored payload's own field. Logged in `tasks/lessons.md`.
 
+## 2026-07-17 — Phase 8 slice (frontend)
+
+### apps/web scoped to 3 pages, not PLAN.md §7's full 7-page site
+
+Built `/`, `/methodology`, `/reports/[id]` only — not `/app`, `/status`, `/privacy`, `/terms`.
+Reasoning discussed with the user directly: none of the missing pages block ASP
+registration (which only needs the API endpoints) or agent-to-agent usage (agents
+consume JSON directly, never the frontend). The three built pages cover every
+"Definition of Done" product checkbox in PLAN.md §29 that actually depends on a
+frontend: report page, methodology page, disclaimer. `/app` (query input UI) would
+only matter for a human using the product interactively rather than via an agent or
+a direct API call — deferred, not abandoned, if that use case becomes a priority.
+
+### GET /v1/reports/:publicId added — wasn't in the original 6-service catalog
+
+Full Report's `report_url` field pointed at a route that didn't exist. Added a
+free, read-only `GET /v1/reports/:publicId` (new `REPORT_NOT_FOUND` error code)
+specifically so that field resolves to something once a report is persisted and
+`apps/web` is deployed. This is infrastructure the 6 paid/free services need, not
+a 7th billable service.
+
 ## Open blocking questions (AGENTS.md §28)
 
 - Final receiving wallet address (`OKX_X402_PAY_TO`)?

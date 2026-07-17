@@ -110,9 +110,33 @@ Expected on a fully-configured production deploy: `/health/live` → 200,
 the last one still 500s, real OKX credentials aren't reaching the container —
 check the platform's secret/env configuration before assuming it's a code bug.
 
+## apps/web (Vercel)
+
+Deployed independently of the API, per PLAN.md §8.1. From the Vercel dashboard,
+import the repo and set:
+
+- **Root Directory**: `apps/web`
+- **Framework Preset**: Next.js (auto-detected)
+- **Environment variable**: `API_URL` → your deployed `apps/api` URL (server-side
+  only; the report page fetches from it in a server component, never exposed to
+  the browser)
+
+Vercel builds `apps/web` as a pnpm workspace member automatically — no extra
+config needed beyond the root directory setting. Verified locally: `next build`
+produces `/` and `/methodology` as static pages and `/reports/[id]` as
+server-rendered-on-demand (it needs a live fetch per request), which is exactly
+the right shape for Vercel's default Next.js runtime.
+
+`packages/schemas`' `PLAN.md §16.1 PaidRouteConfig.payTo` values never reach the
+frontend — `apps/web` only ever calls the free `GET /v1/reports/:publicId`
+endpoint, never a paid route, so it needs no payment/wallet integration at all.
+
 ## Not yet covered here
 
-- `apps/web` deployment (Vercel, per PLAN.md §8.1) — doesn't exist yet.
+- Social card export (1200×630) for report sharing — not built.
+- `/app` (interactive query UI), `/status`, `/privacy`, `/terms` pages — scoped
+  out for now; see `tasks/decisions.md`. None of them block ASP registration or
+  agent-to-agent usage.
 - ASP registration on OKX.AI — separate step, needs the final deployed URLs
   first (AGENTS.md §16.5).
 - Redis — referenced in config validation but no cache layer is implemented

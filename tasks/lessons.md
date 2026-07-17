@@ -4,6 +4,20 @@ Format: mistake → root cause → permanent prevention rule → check added.
 
 ## 2026-07-17
 
+### `turbo prune`'s Docker output drops root-level configs referenced via `extends`
+
+- Mistake: `apps/api/Dockerfile`'s build stage failed with `Cannot read file '/app/tsconfig.base.json'`, cascading into a wall of "target too old" TS errors (`Set`, `.includes()`, regex flags all "not found") that looked like a tsconfig problem in every individual package, when the real cause was one missing file at the root.
+- Root cause: `turbo prune <pkg> --docker`'s `out/full` only contains files that live inside the pruned workspace packages themselves. `tsconfig.base.json` lives at the monorepo root and is referenced via `extends: "../../tsconfig.base.json"` from every package — prune has no way to know a root file is a build dependency just from the workspace graph.
+- Rule: after adding `turbo prune --docker` to a build, explicitly `COPY` every root-level config file that any pruned package's `tsconfig.json`/build config `extends` or otherwise reaches outside its own directory — don't assume prune's dependency graph covers non-package-scoped files.
+- Check added: `apps/api/Dockerfile` now has an explicit `COPY --from=pruner /app/tsconfig.base.json ./tsconfig.base.json` step with a comment explaining why. Caught by actually building the image with Docker, not by writing the Dockerfile and assuming it would work.
+
+### `(0.15).toFixed(1)` is `"0.1"`, not `"0.2"` — binary floats bite formatting too, not just calculation
+
+- Mistake: `apps/web`'s probability formatter used `Number(percentString).toFixed(1)` and silently rendered a real live market's `"0.15"` probability as `0.1%` in both the page body and the `<title>` tag.
+- Root cause: 0.15 has no exact binary floating-point representation (it's stored as `0.1499999999999999944...`), so `toFixed` rounds down instead of the expected half-up. This is the exact same category of float trap AGENTS.md §8 bans for domain *calculations* — it turns out to bite plain *display formatting* just as easily, since `toFixed` is still doing binary-float rounding, not decimal rounding.
+- Rule: any place formatting a numeric string for display — not just where a value is computed — needs `Decimal.js`-based rounding (`.toDecimalPlaces(n, Decimal.ROUND_HALF_UP)`) if the underlying value can have a decimal digit at the rounding boundary. Don't treat "formatting" as automatically safe just because it's not "calculation."
+- Check added: `apps/web/src/lib/format.ts` routes every numeric formatter through a shared `decimalToFixed` helper. Caught by actually rendering a real persisted report in a real browser-facing HTTP response and reading the output, not by unit-testing the formatter with round-number inputs that wouldn't have exposed the bug.
+
 ### A field derived from a DB-generated value can't be baked into the payload written in the same insert
 
 - Mistake: `full-report.service.ts` computed `report_url` (which embeds the DB-generated `public_id`) and stored it *inside* `resultPayload` before calling `INSERT ... RETURNING`. The `public_id` doesn't exist until the insert returns, so the stored `report_url` was always `undefined` — invisible on the first (write) response since that one uses the real post-insert value, but exposed on every subsequent idempotency cache-hit, which was serving the stale stored payload.
