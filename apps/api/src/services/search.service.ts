@@ -29,6 +29,10 @@ export async function searchMarkets(
   params: SearchParams,
   gamma: GammaClient,
 ): Promise<SearchResponseData> {
+  if (!params.query.trim()) {
+    return { query: params.query, matches: [] };
+  }
+
   const raw = await gamma.publicSearch(params.query, params.limit);
   let markets = raw.events.flatMap((event) => event.markets ?? []);
 

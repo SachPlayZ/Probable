@@ -46,12 +46,14 @@ describe("POST /v1/search (free)", () => {
     expect(res.body.data.matches[0].match_score).toBeLessThanOrEqual(100);
   });
 
-  it("rejects an empty query with 400, not 500", async () => {
+  it("returns 200 with no matches for an empty query, never a validation error", async () => {
+    // OKX's A2MCP free-endpoint self-check is a bare `POST /v1/search` with no
+    // body at all — the route must answer 200, not reject for a missing query.
     const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
-    const res = await request(app).post("/v1/search").send({ query: "" });
-    expect(res.status).toBe(400);
-    expect(res.body.ok).toBe(false);
-    expect(res.body.error.code).toBe("INVALID_REQUEST");
+    const res = await request(app).post("/v1/search").send({});
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.data.matches).toEqual([]);
   });
 
   it("returns AMBIGUOUS_MARKET when top candidates score identically and are distinct markets", async () => {

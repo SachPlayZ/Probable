@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const searchRequestSchema = z
   .object({
-    query: z.string().min(1).max(500),
+    // Optional: OKX's A2MCP free-endpoint self-check does a bare `POST` with no
+    // body and requires HTTP 200 back (never a validation error) — see search.service.ts.
+    query: z.string().max(500).default(""),
     limit: z.number().int().positive().max(5).default(5),
     active_only: z.boolean().default(true),
   })
