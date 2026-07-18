@@ -108,6 +108,22 @@ describe("POST /v1/snapshot (paid, 0.01 USDT)", () => {
     expect(Number(challenge.accepts[0]?.amount)).toBeGreaterThan(0);
   });
 
+  it("also returns 402 on a bare GET — OKX's x402 pricing-discovery probe uses GET, not POST", async () => {
+    const config = testConfig();
+    const app = createApp({
+      config,
+      logger,
+      gamma: new FakeGammaClient(),
+      clob: new FakeClobClient(),
+      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.snapshot]),
+    });
+
+    const res = await request(app).get("/v1/snapshot");
+
+    expect(res.status).toBe(402);
+    expect(res.headers["payment-required"]).toBeDefined();
+  });
+
   it("never invokes the business handler (no CLOB call) when payment is absent", async () => {
     const gamma = new FakeGammaClient();
     gamma.marketsBySlug["fed-cut-rates-before-october"] = makeMarket();

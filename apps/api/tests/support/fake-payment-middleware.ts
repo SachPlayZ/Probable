@@ -13,11 +13,13 @@ import type { AppConfig, PaidRouteConfig } from "@probable/config";
  * handler-not-invoked behavior deterministically. It is never used outside tests/.
  */
 export function fakePaymentMiddleware(config: AppConfig, routes: PaidRouteConfig[]): RequestHandler {
-  const byPath = new Map(routes.map((r) => [`POST ${r.path}`, r]));
+  // Keyed by path only, not "METHOD path": the real SDK's route pattern parser
+  // treats a bare path as verb "*" (see apps/api/src/config/payments.ts), so the
+  // challenge fires for any HTTP method on a protected resource, not just POST.
+  const byPath = new Map(routes.map((r) => [r.path, r]));
 
   return (req: Request, res: Response, next: NextFunction): void => {
-    const key = `${req.method} ${req.path}`;
-    const route = byPath.get(key);
+    const route = byPath.get(req.path);
     if (!route) {
       next();
       return;

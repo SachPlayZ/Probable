@@ -11,7 +11,12 @@ import type { RequestHandler } from "express";
 function buildRoutesConfig(routes: PaidRouteConfig[]): Record<string, unknown> {
   const entries: Record<string, unknown> = {};
   for (const route of routes) {
-    entries[`POST ${route.path}`] = {
+    // No "POST " verb prefix: the SDK's route pattern parser treats a bare
+    // path as verb "*" (any method). OKX's own x402 pricing-discovery tooling
+    // (`onchainos agent x402-check`) probes with a plain GET, so the challenge
+    // must fire regardless of method — actual business execution still only
+    // exists on POST (below), so this only widens which requests see the 402.
+    entries[route.path] = {
       accepts: {
         scheme: "exact",
         network: route.network,
