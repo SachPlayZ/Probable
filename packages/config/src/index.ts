@@ -46,7 +46,7 @@ export interface AppConfig {
     assetVersion: string;
     payTo: string;
   };
-  routes: Record<Exclude<ServiceId, "search">, PaidRouteConfig>;
+  routes: Record<ServiceId, PaidRouteConfig>;
 }
 
 /**
@@ -92,6 +92,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     logLevel: parsed.LOG_LEVEL,
     x402,
     routes: {
+      search: {
+        serviceId: "search",
+        path: "/v1/search",
+        price: `$${parsed.PRICE_SEARCH}`,
+        description: "Finds active Polymarket markets matching a natural-language question or Polymarket URL.",
+        ...x402,
+      },
       snapshot: {
         serviceId: "snapshot",
         path: "/v1/snapshot",

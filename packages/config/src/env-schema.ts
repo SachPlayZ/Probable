@@ -38,6 +38,12 @@ export const envSchema = z.object({
   OKX_X402_ASSET_VERSION: z.string().default("1"),
   OKX_X402_PAY_TO: evmAddress.default("0x0000000000000000000000000000000000000000"),
 
+  // Nominal — Market Search was originally free (no x402), but OKX's A2MCP
+  // review appears to run its x402 validator uniformly across every registered
+  // service regardless of declared fee, failing a genuinely fee-0 endpoint that
+  // never emits a 402. Charging a near-zero amount keeps it effectively free
+  // while giving the validator a real challenge to check.
+  PRICE_SEARCH: usdPrice.default("0.001"),
   PRICE_SNAPSHOT: usdPrice.default("0.01"),
   PRICE_VITALS: usdPrice.default("0.03"),
   PRICE_RESOLUTION_AUDIT: usdPrice.default("0.05"),
