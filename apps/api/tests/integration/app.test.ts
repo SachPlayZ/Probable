@@ -56,6 +56,20 @@ describe("POST /v1/search (free)", () => {
     expect(res.body.data.matches).toEqual([]);
   });
 
+  it("also answers a bare GET with 200, mirroring the free-endpoint self-check", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).get("/v1/search");
+    expect(res.status).toBe(200);
+    expect(res.body.data.matches).toEqual([]);
+  });
+
+  it("GET with a query string returns real matches, same as POST", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).get("/v1/search").query({ query: "Will the Fed cut rates before October?" });
+    expect(res.status).toBe(200);
+    expect(res.body.data.matches.length).toBeGreaterThan(0);
+  });
+
   it("returns AMBIGUOUS_MARKET when top candidates score identically and are distinct markets", async () => {
     gamma.publicSearchImpl = async () => ({
       events: [
