@@ -7,6 +7,7 @@ import { bodySizeGuard } from "./middleware/body-size-guard.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import { createPaymentMiddleware } from "./config/payments.js";
 import { healthRouter } from "./routes/health.route.js";
+import { wellKnownRouter } from "./routes/well-known.route.js";
 import { searchRouter } from "./routes/search.route.js";
 import { snapshotRouter } from "./routes/snapshot.route.js";
 import { vitalsRouter } from "./routes/vitals.route.js";
@@ -76,6 +77,7 @@ export function createApp(deps: AppDependencies): Express {
   app.use(express.json({ limit: "32kb" }));
 
   app.use("/health", healthRouter());
+  app.use("/.well-known", wellKnownRouter(config));
   app.use("/v1/search", searchRouter(gamma));
   app.use("/v1/snapshot", snapshotRouter(gamma, clob));
   app.use("/v1/vitals", vitalsRouter(gamma, clob, data));

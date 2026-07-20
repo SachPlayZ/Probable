@@ -25,6 +25,18 @@ describe("GET /health/live", () => {
   });
 });
 
+describe("GET /.well-known/agent.json", () => {
+  it("returns the A2MCP discovery manifest unauthenticated, never a 402", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma: new FakeGammaClient(), clob: new FakeClobClient() });
+    const res = await request(app).get("/.well-known/agent.json");
+    expect(res.status).toBe(200);
+    expect(res.headers["payment-required"]).toBeUndefined();
+    expect(res.body.name).toBe("Probable");
+    expect(res.body.protocols.a2mcp.operations.marketSearch.endpoint).toContain("/v1/search");
+    expect(res.body.protocols.a2mcp.operations.fullIntelligenceReport.price).toBeDefined();
+  });
+});
+
 describe("POST /v1/search (paid, 0.001 USDT)", () => {
   let gamma: FakeGammaClient;
 
