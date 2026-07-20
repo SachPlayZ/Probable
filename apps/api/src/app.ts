@@ -66,7 +66,6 @@ export function createApp(deps: AppDependencies): Express {
   app.use(
     deps.paymentMiddleware ??
       createPaymentMiddleware(config, [
-        config.routes.search,
         config.routes.snapshot,
         config.routes.vitals,
         config.routes.resolution_audit,

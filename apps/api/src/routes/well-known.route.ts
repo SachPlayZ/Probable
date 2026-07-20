@@ -26,7 +26,7 @@ export function wellKnownRouter(config: AppConfig): Router {
             marketSearch: {
               endpoint: `${origin}${routes.search.path}`,
               method: "POST",
-              price: routes.search.price,
+              price: "free",
               description: routes.search.description,
             },
             probabilitySnapshot: {

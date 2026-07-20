@@ -37,92 +37,47 @@ describe("GET /.well-known/agent.json", () => {
   });
 });
 
-describe("POST /v1/search (paid, 0.001 USDT)", () => {
+describe("POST /v1/search (free)", () => {
   let gamma: FakeGammaClient;
 
   beforeEach(() => {
     gamma = new FakeGammaClient();
   });
 
-  it("returns 402 with a decodable PAYMENT-REQUIRED challenge when unpaid", async () => {
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
-    const res = await request(app).post("/v1/search").send({ query: "Will the Fed cut rates before October?" });
-
-    expect(res.status).toBe(402);
-    const challenge = decodePaymentRequired(res.headers["payment-required"]);
-    expect(challenge.resource.url).toContain("/v1/search");
-  });
-
-  it("also returns 402 on a bare GET — OKX's x402 pricing-discovery probe uses GET, not POST", async () => {
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
-    const res = await request(app).get("/v1/search");
-    expect(res.status).toBe(402);
-    expect(res.headers["payment-required"]).toBeDefined();
-  });
-
-  it("returns real matches with a paid header (via fake middleware)", async () => {
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
+  it("returns 200 without payment and never emits an x402 challenge", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
     const res = await request(app)
       .post("/v1/search")
-      .set("x-payment", "fake-signed-payload")
       .send({ query: "Will the Fed cut rates before October?" });
 
     expect(res.status).toBe(200);
+    expect(res.headers["payment-required"]).toBeUndefined();
     expect(res.body.ok).toBe(true);
     expect(res.body.data.matches.length).toBeGreaterThan(0);
     expect(res.body.data.matches[0].match_score).toBeGreaterThanOrEqual(0);
     expect(res.body.data.matches[0].match_score).toBeLessThanOrEqual(100);
   });
 
-  it("returns 200 with no matches for an empty query when paid, never a validation error", async () => {
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
-    const res = await request(app).post("/v1/search").set("x-payment", "fake-signed-payload").send({});
+  it("returns 200 with no matches for an empty query, never a validation error", async () => {
+    // OKX's A2MCP free-endpoint self-check is a bare `POST /v1/search` with no
+    // body at all — the route must answer 200, not reject for a missing query.
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).post("/v1/search").send({});
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
     expect(res.body.data.matches).toEqual([]);
   });
 
-  it("GET with a query string and a paid header returns real matches, same as POST", async () => {
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
-    const res = await request(app)
-      .get("/v1/search")
-      .set("x-payment", "fake-signed-payload")
-      .query({ query: "Will the Fed cut rates before October?" });
+  it("also answers a bare GET with 200, mirroring the free-endpoint self-check", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).get("/v1/search");
+    expect(res.status).toBe(200);
+    expect(res.body.data.matches).toEqual([]);
+  });
+
+  it("GET with a query string returns real matches, same as POST", async () => {
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).get("/v1/search").query({ query: "Will the Fed cut rates before October?" });
     expect(res.status).toBe(200);
     expect(res.body.data.matches.length).toBeGreaterThan(0);
   });
@@ -141,18 +96,8 @@ describe("POST /v1/search (paid, 0.001 USDT)", () => {
         },
       ],
     });
-    const config = testConfig();
-    const app = createApp({
-      config,
-      logger,
-      gamma,
-      clob: new FakeClobClient(),
-      paymentMiddleware: fakePaymentMiddleware(config, [config.routes.search]),
-    });
-    const res = await request(app)
-      .post("/v1/search")
-      .set("x-payment", "fake-signed-payload")
-      .send({ query: "Will X happen?" });
+    const app = createApp({ config: testConfig(), logger, gamma, clob: new FakeClobClient() });
+    const res = await request(app).post("/v1/search").send({ query: "Will X happen?" });
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe("AMBIGUOUS_MARKET");
   });
